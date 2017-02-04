@@ -1,6 +1,10 @@
 // https://www.npmjs.com/package/selenium-webdriver
 
 // http://blog.scottlogic.com/2015/03/04/webdriverjs-and-promises.html
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+
+var dburl = 'mongodb://localhost:27017/stock';
 
 var json = {};
 var log = console.log;
@@ -15,6 +19,36 @@ var getanddisplay = function (xpath) {
     });
 }
 
+function findAndUpdate(xpath, json, type, year, key) {
+    driver.findElement(By.xpath(xpath)).then(function (e) {
+        return e.getText();
+    }).then(function (text) {
+        result = text.replace('万元', '');
+
+
+        if (json[type] != null) {
+            log(type + " is not null");
+            log(json[type])
+                //            json.asset = combineObj(json.asset, {
+                //                [result]: asset
+                //            })
+        } else {
+            log(type + " is  null");
+
+            //            json = combineObj(json, {
+            //                asset: {
+            //                    [result]: asset
+            //                }
+            //            })
+        }
+
+
+        //        asset = combineObj(asset, {
+        //            'ar': result
+        //        })
+        return result;
+    });
+}
 
 var combineObj = function (a, b) {
     var c = {};
@@ -50,9 +84,15 @@ var url, xpath;
 var symbol = '002271';
 var years = [2016, 2015, 2014, 2013, 2012, 2011, 2010]
 years = [2016, 2015, 2014, 2013, 2012, 2011, 2010]
+    //years = [2016]
+
+var writeDB = false;
 
 for (year in years) {
-    log(years[year]);
+    log(year + ": " + years[year] + ". length = " + years.length);
+    if (year == years.length - 1) {
+        writeDB = true;
+    }
     assetSheet(symbol, years[year]);
     incomeSheet(symbol, years[year]);
     cashflowSheet(symbol, years[year]);
@@ -78,11 +118,11 @@ function assetSheet(symbol, year) {
     })
 
     xpath = '/html/body/div[2]/div/div[1]/span[1]/a';
-    driver.findElement(By.xpath(xpath)).then(function (e) {
-        return e.getText()
-    }).then(function (text) {
-        log(text)
-    });
+//    driver.findElement(By.xpath(xpath)).then(function (e) {
+//        return e.getText()
+//    }).then(function (text) {
+//        log(text)
+//    });
 
 
 
@@ -256,33 +296,24 @@ function assetSheet(symbol, year) {
         result = text.replace('万元', '');
         log(result);
 
-
+        //资产负债表 json
         if (json.name != null && json.name.length > 0) {
-
             json.asset = combineObj(json.asset, {
-
                 [result]: asset
-
             })
         } else {
             json = combineObj(json, {
                 asset: {
-                [result]: asset
+                    [result]: asset
                 }
             })
-
         }
-
-
 
         log(json);
         return result;
     });
 
-    //    driver.quit()
-
-    //    log(asset);
-
+    //    findAndUpdate(xpath, json, asset, 2016, 'key')
 }
 
 
@@ -524,40 +555,20 @@ function incomeSheet(symbol, year) {
         result = text.replace('万元', '');
         log(result);
 
-
+        //利润表 json
         if (json.name != null && json.name.length > 0) {
-            log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Writing income for second time...")
-            log(asset);
-            log(json)
             json.income = combineObj(json.income, {
                 [result]: asset
             })
         } else {
-
-            log("#####################################################Writing income for first time...")
-            log(asset);
-            log(json);
             json = combineObj(json, {
                 income: {
                 [result]: asset
                 }
             })
-
-            log("********************* after combinging, json: ")
-            log(json)
-
         }
-
-
-
-
-        //        log(asset);
         return result;
     });
-
-
-    //    driver.quit();
-
 }
 
 function cashflowSheet(symbol, year) {
@@ -647,13 +658,6 @@ function cashflowSheet(symbol, year) {
         asset = combineObj(asset, {
             'fucf': result
         })
-
-        //        log(asset);
-
-        //        json = combineObj(json, {
-        //                cashflow: asset
-        //            })
-        //        log(JSON.stringify(json));
         log(json);
         return result;
     });
@@ -668,13 +672,10 @@ function cashflowSheet(symbol, year) {
         log(result);
 
 
-
+        //现金流量表 json
         if (json.name != null && json.name.length > 0) {
-
             json.cashflow = combineObj(json.cashflow, {
-
                 [result]: asset
-
             })
         } else {
             json = combineObj(json, {
@@ -683,96 +684,54 @@ function cashflowSheet(symbol, year) {
                 [result]: asset
                 }
             })
-
         }
         log(JSON.stringify(json));
-
-
-
-
-
         log(json);
+
+        if (year == years[years.length -1]) {
+            
+            log("INSERTING TO MONGODB");
+
+
+            //        INSERT THE JSON TO MONGODB
+            MongoClient.connect(dburl, function (err, db) {
+
+                if (err) {
+
+                    db.dropCollection('stocks', function (err, result) {
+                        assert.equal(err, null);
+                        console.log(result);
+                        db.close();
+                    })
+                }
+
+                assert.equal(err, null);
+                console.log("Connected with the mongodb.");
+
+                var collection = db.collection('stocks');
+                collection.insertOne(json, function (err, result) {
+                    assert.equal(err, null);
+                    console.log("After insertion: ");
+                    console.log(result.ops);
+
+                    collection.find({}).toArray(function (err, docs) {
+                        assert.equal(err, null);
+                        console.log("Found: ");
+                        console.log(docs);
+                        db.close();
+
+                    })
+                })
+            })
+
+        }
         return result;
     });
-
-
-
-    //    driver.quit();
-
 }
 
 
-
-var j = {
-    "asset": {
-        "year": "2015-12-31",
-        "ar": "208,208.00",
-        "gdzc": "131,365.00",
-        "zzc": "608,406.00",
-        "zfz": "201,563.00",
-        "syzqy": "406,843.00",
-        "ldzc": "394,391.00"
-    },
-    "income": {
-        "year": "2015-12-31",
-        "revenue": "530,399.00",
-        "opcost": "314,197.00",
-        "taxaddon": "9,079.55",
-        "salescost": "65,301.70",
-        "mgmcost": "59,513.30",
-        "fincost": "2,706.60",
-        "assetloss": "6,854.29",
-        "opprofit": "72,807.40",
-        "yywsr": "11,656.70",
-        "yywzc": "740.62",
-        "mgsjlr": "72,971.50"
-    },
-    "cashflow": {
-        "year": "2015-12-31",
-        "opcf": "42,131.70",
-        "incf": "-59,490.40",
-        "fucf": "-13,820.60"
-    }
-}
-
-var b = {
-    asset: {
-        '2015-12-31': {
-            ar: '208,208.00',
-            gdzc: '131,365.00',
-            zzc: '608,406.00',
-            zfz: '201,563.00',
-            syzqy: '406,843.00',
-            ldzc: '394,391.00'
-        }
-    },
-    income: {
-        '2015-12-31': {
-            revenue: '530,399.00',
-            opcost: '314,197.00',
-            taxaddon: '9,079.55',
-            salescost: '65,301.70',
-            mgmcost: '59,513.30',
-            fincost: '2,706.60',
-            assetloss: '6,854.29',
-            opprofit: '72,807.40',
-            yywsr: '11,656.70',
-            yywzc: '740.62',
-            mgsjlr: '72,971.50'
-        }
-    },
-    name: '东方雨虹 002271',
-    cashflow: {
-        '2015-12-31': {
-            opcf: '42,131.70',
-            incf: '-59,490.40',
-            fucf: '-13,820.60'
-        }
-    }
-}
-
-
-a = {
+//output json as follows:
+var a = {
     asset: {
         '2016-09-30': {
             ar: '298,468.00',
