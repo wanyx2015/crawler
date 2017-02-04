@@ -46,20 +46,30 @@ driver.manage().deleteAllCookies();
 
 var url, xpath;
 
-assetSheet();
-incomeSheet();
-cashflowSheet();
+
+var symbol = '002271';
+var years = [2016, 2015, 2014, 2013, 2012, 2011, 2010]
+years = [2016, 2015, 2014, 2013, 2012, 2011, 2010]
+
+for (year in years) {
+    log(years[year]);
+    assetSheet(symbol, years[year]);
+    incomeSheet(symbol, years[year]);
+    cashflowSheet(symbol, years[year]);
+}
 
 
-function assetSheet() {
+
+function assetSheet(symbol, year) {
     ////////////////////////////////////// 资产负债表//////////////////////////////////////////
 
 
 
     var asset = {};
 
-    url = 'http://stock.finance.qq.com/corp1/cbsheet.php?zqdm=002271&type=2015';
+    var url = 'http://stock.finance.qq.com/corp1/cbsheet.php?zqdm=002271&type=2015';
 
+    url = 'http://stock.finance.qq.com/corp1/cbsheet.php?zqdm=' + symbol + '&type=' + year;
 
     driver.get(url).then(function (e) {
         log("Page loading finished: " + url)
@@ -93,7 +103,7 @@ function assetSheet() {
             'ar': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -121,7 +131,7 @@ function assetSheet() {
             'gdzc': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -148,7 +158,7 @@ function assetSheet() {
             'zzc': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -172,7 +182,7 @@ function assetSheet() {
             'zfz': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -196,7 +206,7 @@ function assetSheet() {
             'syzqy': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -221,7 +231,7 @@ function assetSheet() {
             'ldzc': result
         })
 
-        log(asset);
+        //        log(asset);
 
 
         return result;
@@ -246,17 +256,26 @@ function assetSheet() {
         result = text.replace('万元', '');
         log(result);
 
-        json = combineObj(json, {
-            asset: {
+
+        if (json.name != null && json.name.length > 0) {
+
+            json.asset = combineObj(json.asset, {
+
                 [result]: asset
-            }
-        })
 
-        //        asset = combineObj(asset, {
-        //            'year': result
-        //        })
+            })
+        } else {
+            json = combineObj(json, {
+                asset: {
+                [result]: asset
+                }
+            })
 
-        log(asset);
+        }
+
+
+
+        log(json);
         return result;
     });
 
@@ -268,12 +287,15 @@ function assetSheet() {
 
 
 
-function incomeSheet() {
+function incomeSheet(symbol, year) {
     ////////////////////////////////////// 利润表 //////////////////////////////////////////
 
     var asset = {};
 
-    url = 'http://stock.finance.qq.com/corp1/inst.php?zqdm=002271&type=2015';
+    var url = 'http://stock.finance.qq.com/corp1/inst.php?zqdm=002271&type=2015';
+
+    url = 'http://stock.finance.qq.com/corp1/inst.php?zqdm=' + symbol + '&type=' + year;
+
 
 
     driver.get(url).then(function (e) {
@@ -305,7 +327,7 @@ function incomeSheet() {
             'revenue': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -323,7 +345,7 @@ function incomeSheet() {
             'opcost': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -341,7 +363,7 @@ function incomeSheet() {
             'taxaddon': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
     xpath = '/html/body/div[2]/div/table[3]/tbody/tr[5]/th/a' //销售费用
@@ -358,7 +380,7 @@ function incomeSheet() {
             'salescost': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -376,7 +398,7 @@ function incomeSheet() {
             'mgmcost': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -394,7 +416,7 @@ function incomeSheet() {
             'fincost': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -412,7 +434,7 @@ function incomeSheet() {
             'assetloss': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -432,7 +454,7 @@ function incomeSheet() {
             'opprofit': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -450,7 +472,7 @@ function incomeSheet() {
             'yywsr': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -468,7 +490,7 @@ function incomeSheet() {
             'yywzc': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -486,11 +508,11 @@ function incomeSheet() {
             'mgsjlr': result
         })
 
-        log(asset);
+        //        log(asset);
 
-        json = combineObj(json, {
-            income: asset
-        })
+        //        json = combineObj(json, {
+        //            income: asset
+        //        })
         return result;
     });
 
@@ -502,13 +524,34 @@ function incomeSheet() {
         result = text.replace('万元', '');
         log(result);
 
-        json = combineObj(json, {
-            income: {
-                [result]: asset
-            }
-        })
 
-        log(asset);
+        if (json.name != null && json.name.length > 0) {
+            log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!Writing income for second time...")
+            log(asset);
+            log(json)
+            json.income = combineObj(json.income, {
+                [result]: asset
+            })
+        } else {
+
+            log("#####################################################Writing income for first time...")
+            log(asset);
+            log(json);
+            json = combineObj(json, {
+                income: {
+                [result]: asset
+                }
+            })
+
+            log("********************* after combinging, json: ")
+            log(json)
+
+        }
+
+
+
+
+        //        log(asset);
         return result;
     });
 
@@ -517,12 +560,13 @@ function incomeSheet() {
 
 }
 
-function cashflowSheet() {
+function cashflowSheet(symbol, year) {
     ////////////////////////////////////// 现金流量表 //////////////////////////////////////////
 
     var name = '';
     var asset = {};
-    url = 'http://stock.finance.qq.com/corp1/cfst.php?zqdm=002271&type=2015';
+    var url = 'http://stock.finance.qq.com/corp1/cfst.php?zqdm=002271&type=2015';
+    url = 'http://stock.finance.qq.com/corp1/cfst.php?zqdm=' + symbol + '&type=' + year;
 
 
     driver.get(url).then(function (e) {
@@ -549,7 +593,7 @@ function cashflowSheet() {
         //            'year': result
         //        })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -568,7 +612,7 @@ function cashflowSheet() {
             'opcf': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -586,7 +630,7 @@ function cashflowSheet() {
             'incf': result
         })
 
-        log(asset);
+        //        log(asset);
         return result;
     });
 
@@ -604,7 +648,7 @@ function cashflowSheet() {
             'fucf': result
         })
 
-        log(asset);
+        //        log(asset);
 
         //        json = combineObj(json, {
         //                cashflow: asset
@@ -623,12 +667,28 @@ function cashflowSheet() {
         result = text.replace('万元', '');
         log(result);
 
-        json = combineObj(json, {
-            name: name,
-            cashflow: {
+
+
+        if (json.name != null && json.name.length > 0) {
+
+            json.cashflow = combineObj(json.cashflow, {
+
                 [result]: asset
-            }
-        })
+
+            })
+        } else {
+            json = combineObj(json, {
+                name: name,
+                cashflow: {
+                [result]: asset
+                }
+            })
+
+        }
+        log(JSON.stringify(json));
+
+
+
 
 
         log(json);
@@ -637,7 +697,7 @@ function cashflowSheet() {
 
 
 
-    driver.quit();
+    //    driver.quit();
 
 }
 
@@ -707,6 +767,199 @@ var b = {
             opcf: '42,131.70',
             incf: '-59,490.40',
             fucf: '-13,820.60'
+        }
+    }
+}
+
+
+a = {
+    asset: {
+        '2016-09-30': {
+            ar: '298,468.00',
+            gdzc: '137,414.00',
+            zzc: '870,648.00',
+            zfz: '409,135.00',
+            syzqy: '461,513.00',
+            ldzc: '618,748.00'
+        },
+        '2015-12-31': {
+            ar: '208,208.00',
+            gdzc: '131,365.00',
+            zzc: '608,406.00',
+            zfz: '201,563.00',
+            syzqy: '406,843.00',
+            ldzc: '394,391.00'
+        },
+        '2014-12-31': {
+            ar: '154,241.00',
+            gdzc: '90,269.00',
+            zzc: '514,122.00',
+            zfz: '167,905.00',
+            syzqy: '346,217.00',
+            ldzc: '357,122.00'
+        },
+        '2013-12-31': {
+            ar: '121,898.00',
+            gdzc: '71,068.50',
+            zzc: '352,005.00',
+            zfz: '181,941.00',
+            syzqy: '170,064.00',
+            ldzc: '242,948.00'
+        },
+        '2012-12-31': {
+            ar: '89,701.00',
+            gdzc: '45,016.20',
+            zzc: '281,136.00',
+            zfz: '155,401.00',
+            syzqy: '125,735.00',
+            ldzc: '201,358.00'
+        },
+        '2011-12-31': {
+            ar: '72,217.40',
+            gdzc: '31,471.00',
+            zzc: '232,636.00',
+            zfz: '122,796.00',
+            syzqy: '109,840.00',
+            ldzc: '185,846.00'
+        },
+        '2010-12-31': {
+            ar: '53,730.90',
+            gdzc: '20,704.40',
+            zzc: '219,761.00',
+            zfz: '116,503.00',
+            syzqy: '103,258.00',
+            ldzc: '192,201.00'
+        }
+    },
+    income: {
+        '2016-09-30': {
+            revenue: '479,812.00',
+            opcost: '266,162.00',
+            taxaddon: '4,902.01',
+            salescost: '61,858.60',
+            mgmcost: '51,266.40',
+            fincost: '4,439.76',
+            assetloss: '9,441.34',
+            opprofit: '81,321.20',
+            yywsr: '3,455.80',
+            yywzc: '457.25',
+            mgsjlr: '72,069.60'
+        },
+        '2015-12-31': {
+            revenue: '530,399.00',
+            opcost: '314,197.00',
+            taxaddon: '9,079.55',
+            salescost: '65,301.70',
+            mgmcost: '59,513.30',
+            fincost: '2,706.60',
+            assetloss: '6,854.29',
+            opprofit: '72,807.40',
+            yywsr: '11,656.70',
+            yywzc: '740.62',
+            mgsjlr: '72,971.50'
+        },
+        '2014-12-31': {
+            revenue: '500,592.00',
+            opcost: '322,192.00',
+            taxaddon: '7,269.02',
+            salescost: '47,740.00',
+            mgmcost: '51,266.90',
+            fincost: '5,684.19',
+            assetloss: '4,456.03',
+            opprofit: '62,385.40',
+            yywsr: '2,857.05',
+            yywzc: '95.90',
+            mgsjlr: '57,655.10'
+        },
+        '2013-12-31': {
+            revenue: '390,263.00',
+            opcost: '258,362.00',
+            taxaddon: '5,547.59',
+            salescost: '39,934.70',
+            mgmcost: '35,517.70',
+            fincost: '6,410.46',
+            assetloss: '3,277.76',
+            opprofit: '41,512.30',
+            yywsr: '3,078.29',
+            yywzc: '208.93',
+            mgsjlr: '36,370.70'
+        },
+        '2012-12-31': {
+            revenue: '297,857.00',
+            opcost: '210,166.00',
+            taxaddon: '3,630.16',
+            salescost: '30,799.60',
+            mgmcost: '24,355.90',
+            fincost: '6,674.82',
+            assetloss: '3,055.45',
+            opprofit: '19,174.70',
+            yywsr: '3,368.54',
+            yywzc: '279.61',
+            mgsjlr: '18,866.30'
+        },
+        '2011-12-31': {
+            revenue: '247,365.00',
+            opcost: '179,146.00',
+            taxaddon: '2,838.43',
+            salescost: '26,498.20',
+            mgmcost: '22,966.50',
+            fincost: '5,551.72',
+            assetloss: '1,953.90',
+            opprofit: '8,410.44',
+            yywsr: '3,386.63',
+            yywzc: '86.72',
+            mgsjlr: '10,453.00'
+        },
+        '2010-12-31': {
+            revenue: '198,166.00',
+            opcost: '141,125.00',
+            taxaddon: '1,499.31',
+            salescost: '20,560.00',
+            mgmcost: '18,686.80',
+            fincost: '3,022.67',
+            assetloss: '1,720.76',
+            opprofit: '11,551.10',
+            yywsr: '663.18',
+            yywzc: '129.54',
+            mgsjlr: '10,384.00'
+        }
+    },
+    name: '东方雨虹 002271',
+    cashflow: {
+        '2016-09-30': {
+            opcf: '-2,615.84',
+            incf: '-43,495.00',
+            fucf: '101,946.00'
+        },
+        '2015-12-31': {
+            opcf: '42,131.70',
+            incf: '-59,490.40',
+            fucf: '-13,820.60'
+        },
+        '2014-12-31': {
+            opcf: '35,106.20',
+            incf: '-49,542.00',
+            fucf: '66,726.60'
+        },
+        '2013-12-31': {
+            opcf: '26,359.40',
+            incf: '-34,289.00',
+            fucf: '4,472.89'
+        },
+        '2012-12-31': {
+            opcf: '38,382.60',
+            incf: '-28,882.70',
+            fucf: '-6,747.69'
+        },
+        '2011-12-31': {
+            opcf: '-18,790.90',
+            incf: '-18,339.20',
+            fucf: '-5,586.53'
+        },
+        '2010-12-31': {
+            opcf: '-18,720.10',
+            incf: '-13,550.40',
+            fucf: '91,838.30'
         }
     }
 }
