@@ -6,13 +6,17 @@ var log = console.log;
 var fs = require("fs"); // 流
 var http = require('http'); // http 网路
 
+
+var link_txt = "";
+var filename = "links_" + Math.floor((Math.random() * 1000000) + 1) + ".txt"
+
 var webdriver = require('selenium-webdriver'),
     By = webdriver.By,
     until = webdriver.until;
 
 var driver = new webdriver.Builder()
     .forBrowser('firefox')
-    //            .forBrowser('phantomjs')
+    // .forBrowser('phantomjs')
     // .forBrowser('chrome')
     // .usingServer('http://localhost:4444/wd/hub')
     .build();
@@ -74,14 +78,12 @@ function scrollAndUpdate(num) {
                 promise.all(pendingHtml).then(function (allHtml) {
                     // `allHtml` will be an `Array` of strings
                     result = allHtml;
-                    var link_txt = "";
-                    var filname = "links_" + Math.floor((Math.random() * 1000000) + 1) + ".txt"
                     for (var i in allHtml) {
                         link_txt += allHtml[i] + "\r\n";
                     }
 
                     //WRITE TO LOCAL FILE
-                    fs.writeFile(filname, link_txt, function (err) {
+                    fs.writeFile(filename, link_txt, function (err) {
                         if (err) {
                             return console.log(err);
                         }
