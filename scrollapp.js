@@ -7,7 +7,6 @@ var fs = require("fs"); // 流
 var http = require('http'); // http 网路
 
 
-var link_txt = "";
 var filename = "links_" + Math.floor((Math.random() * 1000000) + 1) + ".txt"
 
 var webdriver = require('selenium-webdriver'),
@@ -78,6 +77,7 @@ function scrollAndUpdate(num) {
                 promise.all(pendingHtml).then(function (allHtml) {
                     // `allHtml` will be an `Array` of strings
                     result = allHtml;
+                    var link_txt = "";
                     for (var i in allHtml) {
                         link_txt += allHtml[i] + "\r\n";
                     }
