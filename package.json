@@ -1,0 +1,35 @@
+{
+  "name": "web-crawler",
+  "version": "1.0.0",
+  "description": "finance.sina.com.cn scraper",
+  "main": "index.js",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "express": "^4.14.0",
+    "mongodb": "^2.2.22",
+    "request": "^2.79.0",
+    "selenium-webdriver": "^3.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Wan",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wanyx2015/crawler.git"
+  },
+  "keywords": [
+    "node",
+    "web-crawler\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D",
+    "R\u001b[3~\u001b[3~\u001b[2~",
+    "w\u001b[2~eb\u001b[2~-crawler",
+    "selenium",
+    "webdriver"
+  ],
+  "bugs": {
+    "url": "https://github.com/wanyx2015/crawler/issues"
+  },
+  "homepage": "https://github.com/wanyx2015/crawler#readme"
+}

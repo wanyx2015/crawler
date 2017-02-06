@@ -1,0 +1,27 @@
+mongod --dbpath monggodb/dbpath
+
+
+> show dbs
+admin      0.000GB
+conFusion  0.000GB
+local      0.000GB
+sina       0.000GB
+> show tables
+> use conFusion
+switched to db conFusion
+> show tables
+dishes
+> db.dishes.find()
+{ "_id" : ObjectId("5895c2bc85e2491a5475e83a"), "name" : "Cake", "description" : "Buji cake." }
+{ "_id" : ObjectId("5895c2eb0eb6cd24bc483c99"), "name" : "Cake", "description" : "Buji cake." }
+> db.dishes.drop()
+true
+> db.dishes.find()
+>
+> db.stocks.find({}, {name:1})
+{ "_id" : ObjectId("58969ae5c3fce410a0386562"), "name" : "华胜天成 600410" }
+{ "_id" : ObjectId("58969b80c3fce410a0386563"), "name" : "浪潮信息 000977" }
+{ "_id" : ObjectId("58969c28c3fce410a0386564"), "name" : "日发精机 002520" }
+>
+> db.stocks.findOne().name
+华胜天成 600410
