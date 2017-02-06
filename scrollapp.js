@@ -65,6 +65,29 @@ function scrollAndUpdate(num) {
 
             driver.findElements(By.className("nivo-lb")).then(function (elements) {
                 log(elements.length);
+
+                //PREPARING DATA TO WRITE TO LOCAL FILE
+                var pendingHtml = elements.map(function (elem) {
+                    return elem.getAttribute('href');
+                });
+
+                promise.all(pendingHtml).then(function (allHtml) {
+                    // `allHtml` will be an `Array` of strings
+                    result = allHtml;
+                    var link_txt = "";
+                    var filname = "links_" + Math.floor((Math.random() * 1000000) + 1) + ".txt"
+                    for (var i in allHtml) {
+                        link_txt += allHtml[i] + "\r\n";
+                    }
+
+                    //WRITE TO LOCAL FILE
+                    fs.writeFile(filname, link_txt, function (err) {
+                        if (err) {
+                            return console.log(err);
+                        }
+                        console.log("The file was saved!");
+                    });
+                });
             });
 
             scrollAndUpdate(num - 1);
