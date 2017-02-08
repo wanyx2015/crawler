@@ -56,12 +56,12 @@ function scrollAndUpdate(num) {
                 console.timeEnd("Process all HTML");
 
                 //WRITE TO LOCAL FILE
-                console.time("save");
+                console.time("Appen to file");
                 fs.appendFile(filename, link_txt, function (err) {
                     if (err) {
                         return console.log(err);
                     }
-                    console.timeEnd("save");
+                    console.timeEnd("Appen to file");
 
                     if (num < numOfPage) {
                         scrollAndUpdate(++num);
