@@ -22,6 +22,11 @@ var getanddisplay = function (xpath) {
         //        log(result);
         //        return result;
         return text.replace('万元', '')
+    }).catch(function (error) {
+        if (error) {
+            log("Error happens when calling getanddisplay");
+            log(error);
+        }
     });
 }
 
@@ -39,6 +44,11 @@ function getElement(xpath, callback) {
         //        log(result);
         //        callback(result)
         callback(text.replace('万元', ''))
+    }).catch(function (error) {
+        if (error) {
+            log("Error happens when calling getElement");
+            log(error);
+        }
     });
 }
 
@@ -188,7 +198,7 @@ exports.assetSheet = function assetSheet(symbol, year, callback) {
             symbol: symbol,
             name: name,
             asset: {
-//                year: year,
+                //                year: year,
                 [data]: asset
             }
         }
