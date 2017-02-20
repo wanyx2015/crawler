@@ -4,6 +4,7 @@
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var qq = require('./qq_cb');
+var fs = require("fs"); // 流
 
 var dburl = 'mongodb://localhost:27017/stock';
 
@@ -68,53 +69,74 @@ var url, xpath;
 
 var symbols = ['600410', '000977', '002520', '300216', '002410', '600478', '000895', '002271', '002081', '603000', '002367']
 symbols = ['600410', '000977', '002520', '300216', '002410', '600478', '000895', '002271', '002081', '603000', '002367']
-    //symbols = ['600410'];
+symbols = ['600410'];
 
-var years = [2016, 2015, 2014, 2013, 2012, 2011, 2010]
+var years = [2016, 2015, 2014, 2013, 2012, 2011, 2010];
 //years = [2016, 2015, 2014, 2013, 2012, 2011, 2010]
-//years = [2016, 2015]
+years = [2016]
 
-for (idx in symbols) {
-
-    for (i in years) {
-
-
-        log("Processing " + symbols[idx] + ", " + years[i]);
-
-        qq.assetSheet(symbols[idx], years[i], function (data) {
-            log("------------------------------ in main's inst callback");
-            //            log(data);
-
-            var year = years[i];
-            var symbol = symbols[idx];
+fs.readFile('./all_symbols_qq.txt', function (err, data) {
+    log("Reading file...");
+    if (err) throw err;
 
 
-            checkDB(data.symbol, function (docs) {
-                if (docs.length == 0) {
-                    // NO RECORDS, STORE THE DATA FOR THE FIRST TIME
-                    insertDB(data);
-                } else {
-                    //UPDATE THE RECORD
-                    assert(docs.length == 1)
-                    updateDB(docs[0], 'asset', year, data)
-                }
+    //////////////////////
+    symbols = data.toString().split('\r\n');
+    symbols = ['000535', '600410'];
+
+    //////////////////////
+
+
+    log("Num of symbols: " + symbols.length);
+    processSymbols();
+});
+
+
+function processSymbols() {
+
+
+    for (idx in symbols) {
+
+        for (i in years) {
+
+
+            log("Processing " + symbols[idx] + ", " + years[i]);
+
+            qq.assetSheet(symbols[idx], years[i], function (data) {
+                log("------------------------------ in main's inst callback");
+                //            log(data);
+
+                var year = years[i];
+                var symbol = symbols[idx];
+
+
+                checkDB(data.symbol, function (docs) {
+                    if (docs.length == 0) {
+                        // NO RECORDS, STORE THE DATA FOR THE FIRST TIME
+                        insertDB(data);
+                    } else {
+                        //UPDATE THE RECORD
+                        assert(docs.length == 1)
+                        updateDB(docs[0], 'asset', year, data)
+                    }
+                });
+
+                //            qq.inst(symbols[idx], years[year], function (data) {
+                //                log("------------------------------ in main's inst callback");
+                //                log(data);
+                //                return;
+                //            });
+
+                //            qq.cashflowSheet(symbols[idx], years[year], function (data) {
+                //                log("------------------------------ in main's inst callback");
+                //                log(data);
+                //                return;
+                //            });
             });
 
-            //            qq.inst(symbols[idx], years[year], function (data) {
-            //                log("------------------------------ in main's inst callback");
-            //                log(data);
-            //                return;
-            //            });
-
-            //            qq.cashflowSheet(symbols[idx], years[year], function (data) {
-            //                log("------------------------------ in main's inst callback");
-            //                log(data);
-            //                return;
-            //            });
-        });
+        }
 
     }
-
 }
 
 function checkDB(symbol, callback) {
