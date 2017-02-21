@@ -10,7 +10,7 @@ var dburl = 'mongodb://localhost:27017/stock';
 
 var json = {};
 var log = console.log;
-
+var db;
 
 var combineObj = function (a, b) {
     var c = {};
@@ -64,6 +64,15 @@ var driver = new webdriver.Builder()
 driver.manage().window().maximize();
 driver.manage().deleteAllCookies();
 
+function connectDB() {
+
+    MongoClient.connect(dburl, function (err, conn) {
+        assert.equal(err, null);
+        console.log("Connected with the mongodb.");
+        db = conn;
+    })
+}
+
 var url, xpath;
 
 
@@ -77,6 +86,8 @@ years = [2016, 2015, 2014, 2013, 2012, 2011, 2010]
 
 var jobList = [];
 var job;
+
+connectDB();
 
 fs.readFile('./all_symbols_qq.txt', function (err, data) {
     log("Reading file...");
@@ -134,8 +145,8 @@ function processSymbols() {
             }
             return;
         }
-        
-        
+
+
         log("------------------------------ in main's inst callback");
 
         var symbol = job.symbol;
@@ -171,7 +182,7 @@ function processSymbols() {
     });
 }
 
-function checkDB(symbol, callback) {
+function checkDB_old(symbol, callback) {
     MongoClient.connect(dburl, function (err, db) {
         assert.equal(err, null);
         console.log("Connected with the mongodb.");
@@ -188,7 +199,22 @@ function checkDB(symbol, callback) {
     })
 }
 
-function insertDB(json, callback) {
+function checkDB(symbol, callback) {
+    console.time("checkDB " + symbol);
+    db.collection('stocks').find({
+        symbol: symbol
+    }).toArray(function (err, docs) {
+        assert.equal(err, null);
+        console.log("Found: " + docs.length + " records");
+        //            log(docs);
+        //            db.close();
+        callback(docs);
+        console.timeEnd("checkDB " + symbol);
+    })
+}
+
+
+function insertDB_old(json, callback) {
     MongoClient.connect(dburl, function (err, db) {
         var coll = db.collection("stocks")
 
@@ -210,7 +236,28 @@ function insertDB(json, callback) {
     });
 }
 
-function updateDB(dbdoc, type, year, json) {
+
+function insertDB(json, callback) {
+    var coll = db.collection("stocks")
+
+    coll.insertOne(json, function (err, result) {
+        assert.equal(err, null);
+        console.log("After insertion: ");
+        //            console.log(result.ops);
+
+        coll.find({
+            symbol: json.symbol
+        }).toArray(function (err, docs) {
+            assert.equal(err, null);
+            console.log("Found: " + docs.length + " records");
+            //                console.log(docs);
+            //                db.close();
+        })
+    })
+}
+
+
+function updateDB_old(dbdoc, type, year, json) {
 
     var type = 'asset';
 
@@ -298,6 +345,98 @@ function updateDB(dbdoc, type, year, json) {
                             db.close();
                             //                            callback(docs);
                         });
+                    });
+                });
+                // end of updatedb                    
+            }
+        }
+    }
+
+}
+
+
+function updateDB(dbdoc, type, year, json) {
+
+    var type = 'asset';
+
+    log("ID: " + dbdoc._id + " Symbol: " + dbdoc.name);
+
+    if (dbdoc[type] == null) {
+
+        log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + type + " not found! inserting into db now......")
+            //        dbdoc[type] = json[type];
+
+        // updatedb
+        assert.equal(err, null);
+        console.log("Connected with the mongodb.");
+
+        var coll = db.collection('stocks');
+        coll.findOneAndUpdate({
+            _id: dbdoc._id
+        }, {
+            $set: {
+                [type]: json[type]
+            }
+        }, function (err, r) {
+            assert.equal(null, err);
+            //            test.equal(1, r.lastErrorObject.n);
+            //            test.equal(1, r.value.b);
+            //            test.equal(1, r.value.d);
+            coll.find({
+                symbol: dbdoc.symbol
+            }).toArray(function (err, docs) {
+                assert.equal(err, null);
+                console.log("Found: " + docs.length + " records");
+                //                    log(docs);
+                //                db.close();
+                //                    callback(docs);
+            });
+        });
+        // end of updatedb
+
+    } else {
+
+        for (date in dbdoc[type]) {
+
+            var pendingDate = Object.keys(json[type])[0];
+            var pendingYear = Object.keys(json[type])[0].split("-")[0];
+            log("date: " + date)
+            log("pendingYear " + pendingYear);
+            log("date.indexOf(pendingYear): " + date.indexOf(pendingYear));
+            //            log(dbdoc[type])
+            //            log(dbdoc[type][date])
+
+
+            if (date.indexOf(pendingYear) > -1) {
+                log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type and date MATCHED! Skip...... date = " + date)
+            } else {
+                log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type MATCHED but date not MATCHED! Updating...... date = " + date)
+
+                dbdoc[type][pendingDate] = json[type][pendingDate]
+                dbdoc[type] = combineObj(dbdoc[type], json[type])
+
+                // updatedb
+
+                var coll = db.collection('stocks');
+                coll.findOneAndUpdate({
+                    _id: dbdoc._id
+                }, {
+                    $set: {
+                            [type]: dbdoc[type]
+                    }
+                }, function (err, r) {
+                    assert.equal(null, err);
+                    //            test.equal(1, r.lastErrorObject.n);
+                    //            test.equal(1, r.value.b);
+                    //            test.equal(1, r.value.d);
+                    coll.find({
+                        symbol: dbdoc.symbol
+                    }).toArray(function (err, docs) {
+                        assert.equal(err, null);
+                        console.log("Found: " + docs.length + " records");
+                        //                            log(docs);
+                        //                            db.close();
+                        //                            callback(docs);
                     });
                 });
                 // end of updatedb                    
