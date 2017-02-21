@@ -99,8 +99,12 @@ exports.assetSheet = function assetSheet(symbol, year, callback) {
 
     xpath = '/html/body/div[2]/div/div[1]/span[1]/a'; // symbol name
     getElement(xpath, function (data) {
-        //log("~~~~~~~~~~~~ " + data);
-        name = data.split(" ")[0];
+        if (data == null) {
+            name = null;
+            return;
+        } else {
+            name = data.split(" ")[0];
+        }
     })
 
 
