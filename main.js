@@ -72,8 +72,11 @@ symbols = ['600410', '000977', '002520', '300216', '002410', '600478', '000895',
 symbols = ['600410'];
 
 var years = [2016, 2015, 2014, 2013, 2012, 2011, 2010];
-//years = [2016, 2015, 2014, 2013, 2012, 2011, 2010]
-years = [2016]
+years = [2016, 2015, 2014, 2013, 2012, 2011, 2010]
+    //years = [2016]
+
+var jobList = [];
+var job;
 
 fs.readFile('./all_symbols_qq.txt', function (err, data) {
     log("Reading file...");
@@ -82,12 +85,23 @@ fs.readFile('./all_symbols_qq.txt', function (err, data) {
 
     //////////////////////
     symbols = data.toString().split('\r\n');
-    symbols = ['000535', '600410'];
-
+    //    symbols = ['000535', '600410'];
     //////////////////////
+
+    for (i in symbols) {
+        for (j in years) {
+            if (symbols[i].length > 0) {
+                jobList.push({
+                    symbol: symbols[i].trim(),
+                    year: years[j]
+                })
+            }
+        }
+    }
 
 
     log("Num of symbols: " + symbols.length);
+    log("Num of jobs: " + jobList.length);
     processSymbols();
 });
 
@@ -95,48 +109,48 @@ fs.readFile('./all_symbols_qq.txt', function (err, data) {
 function processSymbols() {
 
 
-    for (idx in symbols) {
-
-        for (i in years) {
-
-
-            log("Processing " + symbols[idx] + ", " + years[i]);
-
-            qq.assetSheet(symbols[idx], years[i], function (data) {
-                log("------------------------------ in main's inst callback");
-                //            log(data);
-
-                var year = years[i];
-                var symbol = symbols[idx];
+    job = jobList.shift();
+    var symbol = job.symbol;
+    var year = job.year;
 
 
-                checkDB(data.symbol, function (docs) {
-                    if (docs.length == 0) {
-                        // NO RECORDS, STORE THE DATA FOR THE FIRST TIME
-                        insertDB(data);
-                    } else {
-                        //UPDATE THE RECORD
-                        assert(docs.length == 1)
-                        updateDB(docs[0], 'asset', year, data)
-                    }
-                });
 
-                //            qq.inst(symbols[idx], years[year], function (data) {
-                //                log("------------------------------ in main's inst callback");
-                //                log(data);
-                //                return;
-                //            });
+    log("Processing " + symbol + ", " + year + ", pending job number: " + jobList.length);
 
-                //            qq.cashflowSheet(symbols[idx], years[year], function (data) {
-                //                log("------------------------------ in main's inst callback");
-                //                log(data);
-                //                return;
-                //            });
-            });
+    qq.assetSheet(symbol, year, function (data) {
+        log("------------------------------ in main's inst callback");
 
-        }
+        var symbol = job.symbol;
+        var year = job.year;
 
-    }
+
+        checkDB(data.symbol, function (docs) {
+            if (docs.length == 0) {
+                // NO RECORDS, STORE THE DATA FOR THE FIRST TIME
+                insertDB(data);
+            } else {
+                //UPDATE THE RECORD
+                assert(docs.length == 1)
+                updateDB(docs[0], 'asset', year, data)
+            }
+
+            if (jobList.length > 0) {
+                setTimeout(processSymbols, 1000);
+            }
+        });
+
+        //            qq.inst(symbols[idx], years[year], function (data) {
+        //                log("------------------------------ in main's inst callback");
+        //                log(data);
+        //                return;
+        //            });
+
+        //            qq.cashflowSheet(symbols[idx], years[year], function (data) {
+        //                log("------------------------------ in main's inst callback");
+        //                log(data);
+        //                return;
+        //            });
+    });
 }
 
 function checkDB(symbol, callback) {
