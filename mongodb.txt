@@ -1,3 +1,9 @@
+git fetch --all
+git reset --hard origin/master
+git reset --hard origin/<branch_name>
+
+
+
 mongod --dbpath monggodb/dbpath
 
 
@@ -25,3 +31,5 @@ true
 >
 > db.stocks.findOne().name
 »ªÊ¤Ìì³É 600410
+
+
