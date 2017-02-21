@@ -84,7 +84,7 @@ fs.readFile('./all_symbols_qq.txt', function (err, data) {
 
 
     //////////////////////
-    symbols = data.toString().split('\r\n');
+    symbols = data.toString().split('\n');
     //    symbols = ['000535', '600410'];
     //////////////////////
 
