@@ -76,18 +76,23 @@ function scrollAndUpdate(num) {
 
                 promise.all(pendingHtml).then(function (allHtml) {
                     // `allHtml` will be an `Array` of strings
-                    result = allHtml;
                     var link_txt = "";
+
+                    console.time("Process all HTML");
                     for (var i in allHtml) {
                         link_txt += allHtml[i] + "\r\n";
                     }
+                    console.timeEnd("Process all HTML");
 
                     //WRITE TO LOCAL FILE
+                    console.time("save");
                     fs.writeFile(filename, link_txt, function (err) {
                         if (err) {
                             return console.log(err);
                         }
                         console.log("The file was saved!");
+                        console.timeEnd("save");
+
                     });
                 });
             });
