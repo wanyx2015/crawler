@@ -88,6 +88,8 @@ fs.readFile('./all_symbols_qq.txt', function (err, data) {
     //    symbols = ['000535', '600410'];
     //////////////////////
 
+
+    //    PREPARING THE JOB LIST
     for (i in symbols) {
         for (j in years) {
             if (symbols[i].length > 0) {
@@ -102,6 +104,9 @@ fs.readFile('./all_symbols_qq.txt', function (err, data) {
 
     log("Num of symbols: " + symbols.length);
     log("Num of jobs: " + jobList.length);
+
+
+    //START THE JOB
     processSymbols();
 });
 
@@ -118,6 +123,19 @@ function processSymbols() {
     log("Processing " + symbol + ", " + year + ", pending job number: " + jobList.length);
 
     qq.assetSheet(symbol, year, function (data) {
+
+
+        if (data == null) {
+
+            //ERROR HANDLING
+            log("------------------------------ in main's inst callback error");
+            if (jobList.length > 0) {
+                setTimeout(processSymbols, 1000);
+            }
+            return;
+        }
+        
+        
         log("------------------------------ in main's inst callback");
 
         var symbol = job.symbol;
