@@ -396,52 +396,75 @@ function updateDB(dbdoc, type, year, json) {
 
     } else {
 
-        for (date in dbdoc[type]) {
+        var pendingDate = Object.keys(json[type])[0];
+        var pendingYear = Object.keys(json[type])[0].split("-")[0];
+        var existing = false;
 
-            var pendingDate = Object.keys(json[type])[0];
-            var pendingYear = Object.keys(json[type])[0].split("-")[0];
-            log("date: " + date)
-            log("pendingYear " + pendingYear);
-            log("date.indexOf(pendingYear): " + date.indexOf(pendingYear));
-            //            log(dbdoc[type])
-            //            log(dbdoc[type][date])
+        log("pendingYear " + pendingYear);
+        //        log(dbdoc[type]);
+        //        log("dbdoc[type].indexOf(pendingYear): " + dbdoc[type].indexOf(pendingYear));
 
 
-            if (date.indexOf(pendingYear) > -1) {
-                log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type and date MATCHED! Skip...... date = " + date)
-            } else {
-                log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type MATCHED but date not MATCHED! Updating...... date = " + date)
+        //        if (dbdoc[type].indexOf(pendingYear) > -1)
+        //        log(Object.keys(dbdoc[type]));
+        //        log(hasEntry(Object.keys(dbdoc[type]), pendingYear));
+        //        log(Object.keys(dbdoc[type]).split('-')[0]);
+        //        log(Object.keys(dbdoc[type]).indexOf(pendingYear));
+        //        for (date in dbdoc[type]) {
+        //
+        //
+        //            log("date: " + date)
+        //
+        //            //            log(dbdoc[type])
+        //            log(dbdoc[type][date])
+        //        }
+        //            if (date.indexOf(pendingYear) > -1) {
+        if (hasEntry(Object.keys(dbdoc[type]), pendingYear)) {
+            log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type and date MATCHED! Skip...... date = " + pendingYear)
+        } else {
+            log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type MATCHED but date not MATCHED! Updating...... date = " + pendingYear)
 
-                dbdoc[type][pendingDate] = json[type][pendingDate]
-                dbdoc[type] = combineObj(dbdoc[type], json[type])
+            dbdoc[type][pendingDate] = json[type][pendingDate]
+            dbdoc[type] = combineObj(dbdoc[type], json[type])
 
-                // updatedb
+            // updatedb
 
-                var coll = db.collection('stocks');
-                coll.findOneAndUpdate({
-                    _id: dbdoc._id
-                }, {
-                    $set: {
+            var coll = db.collection('stocks');
+            coll.findOneAndUpdate({
+                _id: dbdoc._id
+            }, {
+                $set: {
                             [type]: dbdoc[type]
-                    }
-                }, function (err, r) {
-                    assert.equal(null, err);
-                    //            test.equal(1, r.lastErrorObject.n);
-                    //            test.equal(1, r.value.b);
-                    //            test.equal(1, r.value.d);
-                    coll.find({
-                        symbol: dbdoc.symbol
-                    }).toArray(function (err, docs) {
-                        assert.equal(err, null);
-                        console.log("Found: " + docs.length + " records");
-                        //                            log(docs);
-                        //                            db.close();
-                        //                            callback(docs);
-                    });
+                }
+            }, function (err, r) {
+                assert.equal(null, err);
+                //            test.equal(1, r.lastErrorObject.n);
+                //            test.equal(1, r.value.b);
+                //            test.equal(1, r.value.d);
+                coll.find({
+                    symbol: dbdoc.symbol
+                }).toArray(function (err, docs) {
+                    assert.equal(err, null);
+                    console.log("Found: " + docs.length + " records");
+                    //                            log(docs);
+                    //                            db.close();
+                    //                            callback(docs);
                 });
-                // end of updatedb                    
-            }
+            });
+            // end of updatedb                    
         }
+        //        }
     }
 
+}
+
+function hasEntry(array, key) {
+    //    log("key: " + key)
+    for (i in array) {
+        if (array[i] != null && array[i].indexOf(key) > -1) {
+            //            log("index = " + array[i].indexOf(key))
+            return true;
+        }
+    }
+    return false;
 }
