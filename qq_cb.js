@@ -91,7 +91,14 @@ exports.assetSheet = function assetSheet(symbol, year, callback) {
     driver.get(url).then(function (e) {
         log("Page loading finished: " + url)
         console.timeEnd("Page loading cb " + symbol + " " + year);
-    })
+    }).catch(function (error) {
+        if (error) {
+            log("Error happens when navigating");
+            log(error);
+            //VERY IMPORTANT TO CALL CALLBACK WHEN CATCHING ERROR
+            //            callback(null);
+        }
+    });
 
 
     // GETTING DATA
