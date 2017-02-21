@@ -14,13 +14,8 @@ var getanddisplay = function (xpath) {
     }, function (err) {
         if (err.name === "NoSuchElementError") {
             console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   Element was missing! " + xpath);
-            //            getanddisplay(xpath);
         }
-
     }).then(function (text) {
-        //        result = text.replace('万元', '');
-        //        log(result);
-        //        return result;
         return text.replace('万元', '')
     }).catch(function (error) {
         if (error) {
@@ -36,18 +31,16 @@ function getElement(xpath, callback) {
     }, function (err) {
         if (err.name === "NoSuchElementError") {
             console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   Element was missing! " + xpath);
-            //            getanddisplay(xpath);
         }
-
     }).then(function (text) {
-        //        result = text.replace('万元', '');
-        //        log(result);
-        //        callback(result)
         callback(text.replace('万元', ''))
     }).catch(function (error) {
         if (error) {
             log("Error happens when calling getElement");
             log(error);
+
+            //VERY IMPORTANT TO CALL CALLBACK WHEN CATCHING ERROR
+            callback(null);
         }
     });
 }
@@ -202,8 +195,12 @@ exports.assetSheet = function assetSheet(symbol, year, callback) {
                 [data]: asset
             }
         }
-        callback(json);
 
+        if (data == null) {
+            callback(null)
+        } else {
+            callback(json);
+        }
     });
 
 
