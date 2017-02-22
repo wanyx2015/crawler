@@ -96,7 +96,7 @@ fs.readFile('./all_symbols_qq.txt', function (err, data) {
 
     //////////////////////
     symbols = data.toString().split('\n');
-    //    symbols = ['000535', '600410'];
+//        symbols = ['000535', '600410'];
     //////////////////////
 
 
@@ -118,6 +118,12 @@ fs.readFile('./all_symbols_qq.txt', function (err, data) {
 
 
     //START THE JOB
+    
+        while (jobList.length > 2){
+            jobList.shift();
+//            log("job list length: " + jobList.length);
+        }
+
     processSymbols();
 });
 
@@ -142,6 +148,9 @@ function processSymbols() {
             log("------------------------------ in main's inst callback error");
             if (jobList.length > 0) {
                 setTimeout(processSymbols, 1000);
+            }else {
+                db.close();
+                log("Job finished.");
             }
             return;
         }
@@ -165,6 +174,9 @@ function processSymbols() {
 
             if (jobList.length > 0) {
                 setTimeout(processSymbols, 1000);
+            } else {
+                db.close();
+                log("Job finished.");
             }
         });
 
@@ -314,7 +326,7 @@ function updateDB_old(dbdoc, type, year, json) {
             if (date.indexOf(pendingYear) > -1) {
                 log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type and date MATCHED! Skip...... date = " + date)
             } else {
-                log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type MATCHED but date not MATCHED! Updating...... date = " + date)
+                log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! date not FOUND! Updating...... date = " + date)
 
                 dbdoc[type][pendingDate] = json[type][pendingDate]
                 dbdoc[type] = combineObj(dbdoc[type], json[type])
@@ -422,7 +434,7 @@ function updateDB(dbdoc, type, year, json) {
         if (hasEntry(Object.keys(dbdoc[type]), pendingYear)) {
             log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type and date MATCHED! Skip...... date = " + pendingYear)
         } else {
-            log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type MATCHED but date not MATCHED! Updating...... date = " + pendingYear)
+            log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! date not FOUND! Updating...... date = " + date)
 
             dbdoc[type][pendingDate] = json[type][pendingDate]
             dbdoc[type] = combineObj(dbdoc[type], json[type])
