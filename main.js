@@ -119,10 +119,9 @@ fs.readFile('./all_symbols_qq.txt', function (err, data) {
 
     //START THE JOB
     
-        while (jobList.length > 2){
-            jobList.shift();
-//            log("job list length: " + jobList.length);
-        }
+//        while (jobList.length > 2){
+//            jobList.shift();
+//        }
 
     processSymbols();
 });
@@ -434,7 +433,7 @@ function updateDB(dbdoc, type, year, json) {
         if (hasEntry(Object.keys(dbdoc[type]), pendingYear)) {
             log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! type and date MATCHED! Skip...... date = " + pendingYear)
         } else {
-            log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! date not FOUND! Updating...... date = " + date)
+            log("!!!!!!!!!!!!!!!!!!!!!!!!!!!! date not FOUND! Updating...... date = " + pendingYear)
 
             dbdoc[type][pendingDate] = json[type][pendingDate]
             dbdoc[type] = combineObj(dbdoc[type], json[type])
